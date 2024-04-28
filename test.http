@@ -1,0 +1,92 @@
+
+POST https://jellyfish-app-onb35.ondigitalocean.app/login
+
+{
+  "username": "ajalantbrown",
+  "user_password": "password1234567"
+}
+
+
+# GET https://jellyfish-app-onb35.ondigitalocean.app/health
+
+#  POST https://jellyfish-app-onb35.ondigitalocean.app/register 
+
+#  {
+#   "username": "ajalantbrown",
+#   "user_password": "password1234567",
+#   "email": "ajalantbrown@gmail.com",
+#   "first_name": "Ajalan",
+#   "last_name": "Brown",
+#   "birthday": "1996-03-05"
+# }
+
+#atob('eyJ0b2tlbiI6IjI1OWMzMjk4LWU0OTktNGQxZS1iOGZmLTlkMmQ3ODExZGU5NSIsImV4cGlyYXRpb24iOiIyMDI0LTAzLTEyVDE0OjM3OjI0LjQ3MzQyNS0wNTowMCIsInVzZXJfaWQiOiJlZTE2N2RkNi1hYmIwLTQ5ZmUtOWE0Ny1hNWQxYjEzN2QxYWUifQ==')
+
+# "enabled_location": true,
+  # "active": true,
+  #    POST http://0.0.0.0:6969/login
+
+  #  {
+  #    "user_password":"password123",
+  #    "email":"ajalantbrown@gmail.com"
+  #  }
+
+#  PUT http://0.0.0.0:6969/user/5dc14b82-ab8c-43cb-8e2b-47e593aaf8f6
+
+#  {
+#      "username":"john_doe",
+#      "first_name":"john",
+#      "last_name":"doe",
+#  }
+
+
+# GET http://0.0.0.0:6969/api/user/39fa233d-869b-4af8-87bf-710bc02931ca
+#Authorization: eyJUb2tlbiI6IjVkYzE0YjgyLWFiOGMtNDNjYi04ZTJiLTQ3ZTU5M2FhZjhmNiJ9
+
+   
+    # POST http://0.0.0.0:6969/register
+
+    #  {
+    #    "username":"ajbrown",
+    #    "user_password":"password123",
+    #    "email":"ajalantbrown@gmail.com"
+    #  }
+
+# POST http://localhost:8080/login
+
+# {
+#   "user_password":"password1234567",
+#   "username":"ajalantbrown"
+# }
+
+# PUT http://0.0.0.0:6969/user/39fa233d-869b-4af8-87bf-710bc02931ca
+
+#   {
+#       "username":"ajbrown",
+#       "first_name":"aj",
+#       "last_name":"brown",
+#       "birthday": "1996-03-05"
+#   }
+
+
+//GET http://0.0.0.0:6969/user/39fa233d-869b-4af8-87bf-710bc02931ca
+//Authorization: eyJUb2tlbiI6IjVkYzE0YjgyLWFiOGMtNDNjYi04ZTJiLTQ3ZTU5M2FhZjhmNiJ9eyJUb2tlbiI6IjVkYzE0YjgyLWFiOGMtNDNjYi04ZTJiLTQ3ZTU5M2FhZjhmNiJ9
+
+
+# GET http://0.0.0.0:6969/chat/5dc14b82-ab8c-43cb-8e2b-47e593aaf8f6/start/ws
+# Authorization: eyJUb2tlbiI6IjVkYzE0YjgyLWFiOGMtNDNjYi04ZTJiLTQ3ZTU5M2FhZjhmNiJ9
+# Host: 0.0.0.0:6969
+# Connection: Upgrade
+# Upgrade: websocket
+# Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ== 
+# Sec-Websocket-Version: 13
+
+# {
+#   "messages_id": "a53db62e-7c0d-4e0d-8435-48ebcb878970",
+#   "chat_id": "5a4f9362-8c21-4f5a-8f27-9c810d98c10f",
+#   "sender_id": "8c7a9f3b-94b7-4d93-8dd6-927cc96a0e84",
+#   "receiver_id": "3e8d2e02-8a52-4b17-b9fa-822e8f4f37ac",
+#   "created_at": "2023-11-13T12:34:56Z",
+#   "text_message": "Hello, let's start a conversation!"
+# }
+
