@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS users (
   rank INTEGER DEFAULT 0,
   creator BOOLEAN DEFAULT FALSE,
   salt BYTEA,
-  latitude DECIMAL(9,6) NOT NULL,
-  longitude DECIMAL(9,6) NOT NULL
+  latitude DECIMAL(9,6),
+  longitude DECIMAL(9,6)
 );
 
 CREATE TABLE IF NOT EXISTS followings (
