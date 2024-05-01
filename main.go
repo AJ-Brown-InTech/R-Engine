@@ -2,6 +2,7 @@ package main
 
 import (
 	"Engine/internal/routes"
+	"Engine/internal/database"
 	"os"
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
@@ -17,15 +18,17 @@ var (
 )
 
 func main() {
+
 	// set up environment variables
 	SetupEnviroment()
 
 	// connect to database
-	db, err := sqlx.Connect("postgres", DBConn)
-    if err!= nil {
-        logrus.Fatal(err)
-    }
-    defer db.Close()
+	db , err := database.NewDB(DBConn)
+	if err!= nil {
+		logrus.Fatal(err)
+	}
+
+		
 
     logrus.Info("Established a successful database connection.")
 

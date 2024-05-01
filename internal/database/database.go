@@ -1,4 +1,3 @@
-
 package database
 
 import (
@@ -7,23 +6,38 @@ import (
 	"reflect"
 	"strings"
 	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
 )
 
-func InitDatabase(conn string) (*sqlx.DB, error) {
+// DB represents a database connection.
+type DB struct {
+	db *sqlx.DB
+}
+
+// Tx represents a database transaction.
+type Tx struct {
+	tx *sqlx.Tx
+}
+
+// NewDB initializes a new database connection.
+func NewDB(conn string) (*DB, error) {
 	db, err := sqlx.Connect("postgres", conn)
 	if err != nil {
 		return nil, err
 	}
-	err = db.Ping()
+	
+	return &DB{db: db}, nil
+}
+
+// NewTx starts a new transaction.
+func (d *DB) NewTx(ctx context.Context) (*Tx, error) {
+	tx, err := d.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
-	logrus.Info("Established a successful database connection.")
-	return db, nil
+	return &Tx{tx: tx}, nil
 }
 
-// Convert struct to a slice of column names strings and column values strings
+// ObjectToDatabase converts a struct to column names and values.
 func ObjectToDatabase(obj interface{}) ([]string, []interface{}, error) {
 	var columns []string
 	var values []interface{}
@@ -57,28 +71,20 @@ func ObjectToDatabase(obj interface{}) ([]string, []interface{}, error) {
 	return columns, values, nil
 }
 
-// CRUD Operations
-
-// Read operation
-func Read(ctx context.Context, db *sqlx.DB, query string, dest interface{}, args ...interface{}) error {
-	err := db.GetContext(ctx, dest, query, args...)
-	if err != nil {
-		return err
-	}
-	return nil
+// Read executes a read operation.
+func (d *DB) Read(ctx context.Context, query string, dest interface{}, args ...interface{}) error {
+	err := d.db.GetContext(ctx, dest, query, args...)
+	return err
 }
 
-// Batch Read operation
-func BatchRead(ctx context.Context, db *sqlx.DB, query string, dest interface{}, args ...interface{}) error {
-	err := db.SelectContext(ctx, dest, query, args...)
-	if err != nil {
-		return err
-	}
-	return nil
+// BatchRead executes a batch read operation.
+func (d *DB) BatchRead(ctx context.Context, query string, dest interface{}, args ...interface{}) error {
+	err := d.db.SelectContext(ctx, dest, query, args...)
+	return err
 }
 
-// Write operation
-func Write(ctx context.Context, db *sqlx.DB, table string, obj interface{}) error {
+// Write executes a write operation.
+func (d *DB) Write(ctx context.Context, table string, obj interface{}) error {
 	columns, args, err := ObjectToDatabase(obj)
 	if err != nil {
 		return err
@@ -91,16 +97,12 @@ func Write(ctx context.Context, db *sqlx.DB, table string, obj interface{}) erro
 
 	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", table, strings.Join(columns, ", "), strings.Join(placeholders, ", "))
 
-	_, err = db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err = d.db.ExecContext(ctx, query, args...)
+	return err
 }
 
-// Update operation
-func Update(ctx context.Context, db *sqlx.DB, table string, obj interface{}, conditionColumn string, conditionValue interface{}) error {
+// Update executes an update operation.
+func (d *DB) Update(ctx context.Context, table string, obj interface{}, conditionColumn string, conditionValue interface{}) error {
 	columns, args, err := ObjectToDatabase(obj)
 	if err != nil {
 		return err
@@ -113,73 +115,65 @@ func Update(ctx context.Context, db *sqlx.DB, table string, obj interface{}, con
 
 	query := fmt.Sprintf("UPDATE %s SET %s WHERE %s = $%d", table, strings.Join(setClause, ", "), conditionColumn, len(columns)+1)
 
-	_, err = db.ExecContext(ctx, query, append(args, conditionValue)...)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err = d.db.ExecContext(ctx, query, append(args, conditionValue)...)
+	return err
 }
 
-// Delete operation
-func Delete(ctx context.Context, db *sqlx.DB, table string, conditionColumn string, conditionValue interface{}) error {
+// Delete executes a delete operation.
+func (d *DB) Delete(ctx context.Context, table string, conditionColumn string, conditionValue interface{}) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE %s = $1", table, conditionColumn)
 
-	_, err := db.ExecContext(ctx, query, conditionValue)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err := d.db.ExecContext(ctx, query, conditionValue)
+	return err
 }
 
-// Batch Write operation
-func BatchWrite(ctx context.Context, db *sqlx.DB, table string, objs []interface{}) error {
-	tx, err := db.BeginTxx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
+// BatchWrite executes a batch write operation within a transaction.
+func (t *Tx) BatchWrite(ctx context.Context, table string, objs []interface{}) error {
 	for _, obj := range objs {
-		err := Write(ctx, tx, table, obj)
+		err := t.Write(ctx, table, obj)
 		if err != nil {
-			tx.Rollback()
+			t.Rollback()
 			return err
 		}
 	}
 
-	err = tx.Commit()
+	err := t.Commit()
+	return err
+}
+
+// Commit commits the transaction.
+func (t *Tx) Commit() error {
+	return t.tx.Commit()
+}
+
+// Rollback rolls back the transaction.
+func (t *Tx) Rollback() error {
+	return t.tx.Rollback()
+}
+
+// Write executes a write operation within a transaction.
+func (t *Tx) Write(ctx context.Context, table string, obj interface{}) error {
+	columns, args, err := ObjectToDatabase(obj)
 	if err != nil {
 		return err
 	}
 
-	return nil
-}
-
-// Transaction Operations
-
-// StartTransaction starts a new transaction
-func StartTransaction(ctx context.Context, db *sqlx.DB) (*sqlx.Tx, error) {
-	tx, err := db.BeginTxx(ctx, nil)
-	if err != nil {
-		return nil, err
+	placeholders := make([]string, len(columns))
+	for i := range columns {
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
 	}
-	return tx, nil
+
+	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", table, strings.Join(columns, ", "), strings.Join(placeholders, ", "))
+
+	_, err = t.tx.ExecContext(ctx, query, args...)
+	return err
 }
 
-// CommitTransaction commits a transaction
-func CommitTransaction(tx *sqlx.Tx) error {
-	err := tx.Commit()
+// BatchRead executes a batch read operation within a transaction.
+func (t *Tx) BatchRead(ctx context.Context, query string, dest interface{}, args ...interface{}) error {
+	err := t.tx.SelectContext(ctx, dest, query, args...)
 	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// RollbackTransaction rolls back a transaction
-func RollbackTransaction(tx *sqlx.Tx) error {
-	err := tx.Rollback()
-	if err != nil {
+		t.Rollback()
 		return err
 	}
 	return nil
