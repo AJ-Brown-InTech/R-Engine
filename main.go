@@ -5,7 +5,6 @@ import (
 	"Engine/internal/database"
 	"os"
 	"github.com/go-chi/chi"
-	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -27,8 +26,6 @@ func main() {
 	if err!= nil {
 		logrus.Fatal(err)
 	}
-
-		
 
     logrus.Info("Established a successful database connection.")
 

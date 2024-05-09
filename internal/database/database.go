@@ -19,13 +19,13 @@ type Tx struct {
 }
 
 // NewDB initializes a new database connection.
-func NewDB(conn string) (*DB, error) {
+func NewDB(conn string) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres", conn)
 	if err != nil {
 		return nil, err
 	}
-	
-	return &DB{db: db}, nil
+
+	return db, nil
 }
 
 // NewTx starts a new transaction.
