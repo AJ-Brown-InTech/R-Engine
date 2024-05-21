@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS users (
   creator BOOLEAN DEFAULT FALSE,
   salt BYTEA,
   latitude DECIMAL(9,6),
-  longitude DECIMAL(9,6)
+  longitude DECIMAL(9,6),
+  session_token VARCHAR(255), 
 );
 
 CREATE TABLE IF NOT EXISTS followings (

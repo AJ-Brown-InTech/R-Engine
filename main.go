@@ -60,3 +60,4 @@ func SetupEnviroment() {
 
 	logrus.Info("enviroment set...")
 }
+

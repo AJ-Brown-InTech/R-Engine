@@ -28,6 +28,7 @@ type User struct {
     Salt                []byte    `json:"-" db:"salt"`
     Latitude            float64   `json:"latitude" db:"latitude"`
     Longitude           float64   `json:"longitude" db:"longitude"`
+    SessionToken        string    `json:"session_token" db:"session_token"`
 }
 
 // Check if username and email exist
