@@ -22,7 +22,7 @@ func GetUsernameFromRequest(r *http.Request) (string, bool) {
 // SessionMiddleware handles session validation for incoming requests.
 func SessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		
+
 		encodedSessionToken := r.Header.Get("Authorization")
 
 		// Check if the Authorization header exists
@@ -47,7 +47,13 @@ func SessionMiddleware(next http.Handler) http.Handler {
 		}
 
 		// Store the username in the request context
-		ctx := context.WithValue(r.Context(), ContextKeyUser, session.Username)
+		username, ok := GetUsernameFromRequest(r)
+		if !ok {
+			http.Error(w, "Unable to get user from context", http.StatusInternalServerError)
+			r.Header.Set("Authorization", "")
+			return
+		}
+		ctx := context.WithValue(r.Context(), username, session.Username)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

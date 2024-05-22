@@ -17,6 +17,7 @@ func InitHandlers(router *chi.Mux, db *sqlx.DB) {
 	// authenticated routes
 	apiRouter := chi.NewRouter()
 	apiRouter.Use(SessionMiddleware)
+	apiRouter.Use()
 	router.Mount("/api/v1/", apiRouter)
 
 		
