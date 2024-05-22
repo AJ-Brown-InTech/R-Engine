@@ -50,7 +50,33 @@ func (u *User) UserAndEmailExist(ctx context.Context, db *sqlx.DB) (bool, bool, 
 	return userCount > 0, emailCount > 0, nil
 }
 
-// validate account creation
+// Check if username exist
+func (u *User) UserExist(ctx context.Context, db *sqlx.DB) (bool, error) {
+	var userCount int
+
+	// Check username
+	err := db.GetContext(ctx, &userCount, "SELECT COUNT(*) FROM users WHERE username = $1", u.Username)
+	if err != nil {
+		return false, err
+	}
+
+	return userCount > 0,  nil
+}
+
+// Check if email exist
+func (u *User) EmailExist(ctx context.Context, db *sqlx.DB) (bool, error) {
+	var emailCount int
+
+	// Check email
+	err := db.GetContext(ctx, &emailCount, "SELECT COUNT(*) FROM users WHERE email = $1", u.Email)
+	if err != nil {
+		return false, err
+	}
+
+	return emailCount > 0, nil
+}
+
+// Validate user creation
 func (u *User) Validate() error {
 	validation := validator.New()
     var UserValidation = map[string]string{
@@ -63,7 +89,6 @@ func (u *User) Validate() error {
     }
 
 	validation.RegisterStructValidationMapRules(UserValidation, User{})
-
     return  validation.Struct(&u)
 }
 

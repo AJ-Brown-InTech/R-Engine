@@ -6,7 +6,7 @@ import (
 	"os"
 	"github.com/go-chi/chi"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	_"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,7 +17,6 @@ var (
 )
 
 func main() {
-
 	// set up environment variables
 	SetupEnviroment()
 
