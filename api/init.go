@@ -17,7 +17,11 @@ func InitHandlers(router *chi.Mux, db *storage.DB) {
 	apiRouter := chi.NewRouter()
 	apiRouter.Use(SessionMiddleware)
 	apiRouter.Use(RequestMiddleware)
+
+	router.Post("/register", RegisterAccount(db))
 	router.Mount("/api/v1/", apiRouter)
+
+
 
 	port := os.Getenv("PORT")
 	if port == "" {

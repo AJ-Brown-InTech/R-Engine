@@ -2,10 +2,13 @@ package types
 
 import (
 	"context"
+	"encoding/base64"
 	"time"
+
 	"github.com/go-playground/validator/v10"
-	"github.com/jmoiron/sqlx"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+	"golang.org/x/crypto/scrypt"
 )
 
 type User struct {
@@ -138,4 +141,24 @@ func SearchUsers(ctx context.Context, db *sqlx.DB, searchTerm string) ([]User, e
 	query := `SELECT * FROM users WHERE username ILIKE $1 OR email ILIKE $1`
 	err := db.SelectContext(ctx, &users, query, "%"+searchTerm+"%")
 	return users, err
+}
+
+// Hash is a function to hash the password with a generated salt
+func Hash(password string) (string, []byte, error) {
+	salt := []byte(password)
+	hash, err := scrypt.Key([]byte(password), salt, 16384, 8, 1, 32)
+	if err != nil {
+		return "", nil, err
+	}
+	return base64.StdEncoding.EncodeToString(hash), salt, nil
+}
+
+// Check if the provided password matches the stored hashed password
+func Compare(password, hash string, salt []byte) bool {
+	input, err := scrypt.Key([]byte(password), salt, 16384, 8, 1, 32)
+	if err != nil {
+		return false
+	}
+	encoded := base64.StdEncoding.EncodeToString(input)
+	return hash == encoded
 }

@@ -8,7 +8,7 @@ import (
 
 // DB represents a database connection.
 type DB struct {
-	db *sqlx.DB
+	Db *sqlx.DB
 }
 
 // NewDB initializes a new database connection.
@@ -17,12 +17,12 @@ func NewDB(conn string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DB{db: db}, nil
+	return &DB{Db: db}, nil
 }
 
 // NewTx starts a new transaction.
 func (d *DB) NewTx(ctx context.Context) (*Tx, error) {
-	tx, err := d.db.BeginTxx(ctx, nil)
+	tx, err := d.Db.BeginTxx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -31,5 +31,5 @@ func (d *DB) NewTx(ctx context.Context) (*Tx, error) {
 
 // Close closes the database connection.
 func (d *DB) Close() error {
-	return d.db.Close()
+	return d.Db.Close()
 }
