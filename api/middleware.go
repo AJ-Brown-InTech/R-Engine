@@ -1,9 +1,10 @@
-package routes
+package api
 
 import (
-	"Engine/internal/models"
+	"Engine/types"
 	"context"
 	"net/http"
+	"strings"
 	"github.com/google/uuid"
 )
 
@@ -22,38 +23,36 @@ func GetUsernameFromRequest(r *http.Request) (string, bool) {
 // SessionMiddleware handles session validation for incoming requests.
 func SessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		encodedSessionToken := r.Header.Get("Authorization")
-
-		// Check if the Authorization header exists
-		if encodedSessionToken == "" {
-			http.Error(w, "Unauthorized to make request, please authenticate", http.StatusUnauthorized)
+		// Get the Authorization header
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "Unauthorized: no Authorization header", http.StatusUnauthorized)
 			return
 		}
 
-		var session models.Session
+		// Extract the session token
+		encodedSessionToken := strings.TrimSpace(authHeader)
+		if encodedSessionToken == "" {
+			http.Error(w, "Unauthorized: empty session token", http.StatusUnauthorized)
+			return
+		}
+
+		var session types.Session
 
 		// Validate the session
 		valid, err := session.Validate(encodedSessionToken)
 		if err != nil {
-			http.Error(w, "Error validating session", http.StatusInternalServerError)
+			http.Error(w, "Error validating session: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if !valid {
-			http.Error(w, "Session token has expired or is invalid, clearing token...", http.StatusUnauthorized)
-			r.Header.Set("Authorization", "")
+			http.Error(w, "Session expired or invalid", http.StatusUnauthorized)
 			return
 		}
 
 		// Store the username in the request context
-		username, ok := GetUsernameFromRequest(r)
-		if !ok {
-			http.Error(w, "Unable to get user from context", http.StatusInternalServerError)
-			r.Header.Set("Authorization", "")
-			return
-		}
-		ctx := context.WithValue(r.Context(), username, session.Username)
+		ctx := context.WithValue(r.Context(), ContextKeyUser, session.Username)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -61,7 +60,7 @@ func SessionMiddleware(next http.Handler) http.Handler {
 // RequestMiddleware handles adding request data to the context.
 func RequestMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rd := models.RequestData{}
+		rd := types.RequestData{}
 		rd.From = r.Header.Get("Request")
 		rd.TraceId = r.Header.Get("Trace")
 		if rd.TraceId == "" {

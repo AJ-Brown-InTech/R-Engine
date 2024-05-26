@@ -80,13 +80,7 @@ CREATE TABLE IF NOT EXISTS notifications  ( -- (e.g., "like", "comment", "follow
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- CREATE TABLE IF NOT EXISTS post_tags (
---     post_id UUID NOT NULL,
---     tag_id UUID NOT NULL,
---     PRIMARY KEY (post_id, tag_id),
---     FOREIGN KEY (post_id) REFERENCES posts(post_id),
---     FOREIGN KEY (tag_id) REFERENCES tags(tag_id)
--- );
+
 
 CREATE TABLE IF NOT EXISTS flagged_accounts (
     user_id UUID PRIMARY KEY,

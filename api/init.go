@@ -1,26 +1,24 @@
-package routes
+package api
 
 import (
+	"Engine/storage"
 	"log"
 	"net/http"
 	"os"
 	"time"
-
 	"github.com/go-chi/chi"
-	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 )
 
 
-func InitHandlers(router *chi.Mux, db *sqlx.DB) {
+func InitHandlers(router *chi.Mux, db *storage.DB) {
 	
 	// authenticated routes
 	apiRouter := chi.NewRouter()
 	apiRouter.Use(SessionMiddleware)
-	apiRouter.Use()
+	apiRouter.Use(RequestMiddleware)
 	router.Mount("/api/v1/", apiRouter)
 
-		
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

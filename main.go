@@ -1,12 +1,13 @@
 package main
 
 import (
-	"Engine/internal/routes"
-	"Engine/internal/database"
+	"Engine/api"
+	"Engine/storage"
 	"os"
+
 	"github.com/go-chi/chi"
 	"github.com/joho/godotenv"
-	_"github.com/lib/pq"
+	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,16 +22,16 @@ func main() {
 	SetupEnviroment()
 
 	// connect to database
-	db , err := database.NewDB(DBConn)
+	db , err := storage.NewDB(DBConn)
 	if err!= nil {
 		logrus.Fatal(err)
 	}
 
     logrus.Info("Established a successful database connection.")
 
-	// initialize handlers
+	// Initialize handlers
 	r := chi.NewRouter()
-	routes.InitHandlers(r,db)
+	api.InitHandlers(r,db)
 
 }
 
@@ -59,4 +60,3 @@ func SetupEnviroment() {
 
 	logrus.Info("enviroment set...")
 }
-

@@ -1,4 +1,4 @@
-package models
+package types
 
 import "time"
 
@@ -12,21 +12,6 @@ type Post struct {
     Longitude    float64   `json:"longitude" db:"longitude"`
     LocationName string    `json:"location_name" db:"location_name"`
     CreatedAt    time.Time `json:"created_at" db:"created_at"`
-}
-
-type Like struct {
-    LikeID    string    `json:"like_id" db:"like_id"`
-    UserID    string    `json:"user_id" db:"user_id"`
-    PostID    string    `json:"post_id" db:"post_id"`
-    CreatedAt time.Time `json:"created_at" db:"created_at"`
-}
-
-type Comment struct {
-    CommentID string    `json:"comment_id" db:"comment_id"`
-    UserID    string    `json:"user_id" db:"user_id"`
-    PostID    string    `json:"post_id" db:"post_id"`
-    Content   string    `json:"content" db:"content"`
-    CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
 type PostTag struct {
